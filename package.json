@@ -1,0 +1,19 @@
+{
+  "name": "demon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@9.5.1",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.5.4"
+  }
+}

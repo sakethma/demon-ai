@@ -1,0 +1,42 @@
+{
+  "name": "desktop",
+  "version": "1.0.0",
+  "main": "src/main/index.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && npx electron@latest .\"",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@demon/core": "*",
+    "@picovoice/porcupine-web": "^4.0.1",
+    "@picovoice/web-voice-processor": "^4.0.10",
+    "@react-three/drei": "^9.56.24",
+    "@react-three/fiber": "^8.12.0",
+    "active-win": "^8.2.1",
+    "brightness": "^3.0.0",
+    "chokidar": "^5.0.0",
+    "dotenv": "^9.0.2",
+    "fast-glob": "^3.3.3",
+    "file-type": "^22.0.1",
+    "loudness": "^0.4.2",
+    "mime-types": "^2.1.35",
+    "ps-list": "^9.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "systeminformation": "^5.33.0",
+    "three": "^0.150.1",
+    "trash": "^10.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.1",
+    "electron-builder": "^23.6.0",
+    "typescript": "^5.5.4",
+    "vite": "^4.2.0",
+    "wait-on": "^9.0.10"
+  }
+}
