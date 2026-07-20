@@ -70,22 +70,38 @@ app.whenReady().then(() => {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) throw new Error('GEMINI_API_KEY is not set in .env');
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: messages,
-          tools: tools ? [{ functionDeclarations: tools }] : undefined
-        })
-      });
+      const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+      let lastError;
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`Gemini API Error: ${err}`);
+      for (const model of models) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: messages,
+              tools: tools ? [{ functionDeclarations: tools }] : undefined
+            })
+          });
+
+          if (response.status === 429) {
+            console.warn(`Gemini API Model ${model} hit rate limit (429). Attempting fallback model...`);
+            continue;
+          }
+
+          if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`Gemini API Error (${model}): ${err}`);
+          }
+
+          const data = await response.json();
+          return { success: true, data };
+        } catch (err) {
+          lastError = err;
+        }
       }
 
-      const data = await response.json();
-      return { success: true, data };
+      throw lastError || new Error('API Rate limit (429) reached across all models. Please wait 20 seconds.');
     } catch (error) {
       console.error(error);
       return { success: false, error: error.message };
