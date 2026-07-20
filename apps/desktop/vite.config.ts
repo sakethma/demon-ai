@@ -10,5 +10,9 @@ export default defineConfig({
       input: resolve(__dirname, 'index.html'),
     },
   },
+  server: {
+    port: 5173,
+    strictPort: true
+  },
   base: './'
 });
