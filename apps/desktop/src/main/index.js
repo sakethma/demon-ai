@@ -67,6 +67,68 @@ app.whenReady().then(() => {
 
   ipcMain.handle('ask_gemini', async (event, { messages, tools }) => {
     try {
+      const groqKey = process.env.GROQ_API_KEY;
+      if (groqKey && groqKey.startsWith('gsk_')) {
+        try {
+          const openAiMessages = messages.map(m => ({
+            role: m.role === 'model' ? 'assistant' : 'user',
+            content: m.parts && m.parts[0] ? m.parts[0].text : ''
+          }));
+
+          const openAiTools = tools ? tools.map(t => ({
+            type: 'function',
+            function: {
+              name: t.name,
+              description: t.description,
+              parameters: t.parameters
+            }
+          })) : undefined;
+
+          const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${groqKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              messages: openAiMessages,
+              tools: openAiTools
+            })
+          });
+
+          if (groqRes.ok) {
+            const groqData = await groqRes.json();
+            const choice = groqData.choices[0].message;
+            let part = {};
+            if (choice.tool_calls && choice.tool_calls.length > 0) {
+              const tc = choice.tool_calls[0];
+              part = {
+                functionCall: {
+                  name: tc.function.name,
+                  args: JSON.parse(tc.function.arguments)
+                }
+              };
+            } else {
+              part = { text: choice.content || '' };
+            }
+
+            return {
+              success: true,
+              data: {
+                candidates: [{ content: { parts: [part] } }]
+              }
+            };
+          } else {
+            const errText = await groqRes.text();
+            console.warn(`Groq API Error (${groqRes.status}): ${errText}`);
+          }
+        } catch (groqErr) {
+          console.warn('Groq API call failed, falling back to Gemini:', groqErr);
+        }
+      }
+
+      // Gemini Fallback
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) throw new Error('GEMINI_API_KEY is not set in .env');
 
