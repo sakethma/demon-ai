@@ -19,11 +19,11 @@ function createWindow() {
     }
   });
 
-  win.loadURL('http://localhost:5173');
+  win.loadURL('http://127.0.0.1:5173');
   win.webContents.on('did-fail-load', () => {
     console.log('Failed to load dev server, retrying in 1s...');
     setTimeout(() => {
-      win.loadURL('http://localhost:5173');
+      win.loadURL('http://127.0.0.1:5173');
     }, 1000);
   });
   // win.webContents.openDevTools();
