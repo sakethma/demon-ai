@@ -18,10 +18,16 @@ export const Globe: React.FC = () => {
     camera.position.z = 15;
 
     // Renderer Setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    mountRef.current.appendChild(renderer.domElement);
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      mountRef.current.appendChild(renderer.domElement);
+    } catch (e) {
+      console.warn("WebGL not supported or disabled in this environment. Skipping 3D Globe rendering.", e);
+      return;
+    }
 
     // Globe Geometry & Material
     const geometry = new THREE.IcosahedronGeometry(8, 12); // High-poly sphere approximation
